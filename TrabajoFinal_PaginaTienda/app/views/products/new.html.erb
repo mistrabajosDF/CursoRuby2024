@@ -1,0 +1,59 @@
+<h1>Agregar producto</h1>
+<%= link_to 'Volver', products_path, class: 'btn btn-secondary' %>
+<%= form_with(model: @product, local: true, html: { multipart: true }) do |form| %>
+  <% if @product.errors.any? %>
+    <div class="alert alert-danger">
+      <ul>
+        <% @product.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="form-group">
+    <%= form.label :name, "Nombre" %> 
+    <%= form.text_field :name, class: 'form-control', required: true %> 
+  </div>
+
+  <div class="form-group">
+    <%= form.label :description, "Descripción" %> 
+    <%= form.text_area :description, class: 'form-control', required: true %> 
+  </div>
+
+  <div class="form-group">
+    <%= form.label :stock, "Stock" %>
+    <%= form.number_field :stock, class: 'form-control', required: true %> 
+  </div>
+
+  <div class="form-group">
+    <%= form.label :price, "Precio" %>
+    <%= form.number_field :price, class: 'form-control', step: 0.01, required: true %> 
+  </div>
+
+  <div class="form-group">
+    <%= form.label :talle, "Talle" %> 
+    <%= form.number_field :talle, class: 'form-control' %> 
+  </div>
+
+  <div class="form-group">
+    <%= form.label :color, "Color" %> 
+    <%= form.text_field :color, class: 'form-control' %>
+  </div>
+
+  <%= form.hidden_field :state, value: true %>
+
+  <div class="form-group">
+    <%= form.label :category_id, "Categoría" %>
+    <%= form.collection_select :category_id, Category.all, :id, :name, { prompt: 'Seleccionar Categoría' }, class: 'form-control', required: true %>
+  </div>
+
+  <div class="form-group">
+    <%= form.label :image, "Imagen del Producto" %>
+    <%= form.file_field :image, class: 'form-control' %>
+  </div>
+
+  <div class="form-group">
+    <%= form.submit 'Crear Producto', class: 'btn btn-primary' %>
+  </div>
+<% end %>

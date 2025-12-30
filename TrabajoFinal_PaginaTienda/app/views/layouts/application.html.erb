@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+
+<html>
+
+  <head>
+    <title><%= content_for(:title) || "AVIVAS" %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <%= yield :head %>
+
+    <!-- Bootstrap(?) -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <link rel="icon" href="/icon.png" type="image/png">
+    <link rel="icon" href="/icon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/icon.png">
+
+    <%= javascript_importmap_tags %>
+    
+  </head>
+
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #343a40;">
+    <div class="container-fluid">
+     
+    <a class="navbar-brand" href="/">
+      <img src="/logo.png" alt="AVIVAS" style="height: 40px;">
+    </a>
+
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <!-- Barra -->
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ml-auto">
+  <% if logged_in? %>
+    <!-- Opciones para empleado -->
+    <li class="nav-item  mx-2">
+      <%= link_to 'Productos', products_path, class: 'btn btn-primary' %>
+    </li>
+    <li class="nav-item  mx-2">
+      <%= link_to 'Ventas', sales_path, class: 'btn btn-primary' %>
+    </li>
+
+    <% if current_user.role.name == "Administrador" || current_user.role.name == "Gerente" %>
+      <li class="nav-item  mx-2">
+        <%= link_to 'Personal', users_path, class: 'btn btn-primary' %>
+      </li>
+    <% end %>
+
+    <li class="nav-item mx-2">
+      <%= link_to 'Editar Perfil', edit_user_path(current_user), class: 'btn btn-warning' %>
+    </li>
+
+    <li class="nav-item mx-2">
+      <%= button_to 'Cerrar sesión', logout_path, method: :delete, class: 'btn btn-danger' %>
+    </li>
+
+  <% elsif customer_signed_in? %>
+    <!-- Opciones para cliente -->
+    
+    <li class="nav-item mx-2">
+      <%= link_to 'Ver mi carrito', cart_path, class: 'btn btn-success' %>
+    </li>
+
+    <li class="nav-item mx-2">
+      <%= link_to 'Editar Perfil', edit_customer_registration_path, class: 'btn btn-warning' %>
+    </li>
+
+    <li class="nav-item mx-2">
+      <%= button_to 'Cerrar sesión', destroy_customer_session_path, method: :delete, class: 'btn btn-danger' %>
+    </li>
+
+  <% else %>
+    <!-- Nadie logueado -->
+
+    <li class="nav-item mx-2">
+      <%= link_to 'Iniciar sesión empleado', login_path, class: 'btn btn-secondary' %>
+    </li>
+
+    <li class="nav-item mx-2">
+      <%= link_to 'Iniciar sesión cliente', new_customer_session_path, class: 'btn btn-primary' %>
+    </li>
+
+    <li class="nav-item mx-2">
+      <%= link_to 'Registrarse', new_customer_registration_path, class: 'btn btn-success' %>
+    </li>
+  <% end %>
+</ul>
+
+      </div>
+    </div>
+  </nav>
+
+  <div class="container mt-4"> 
+    <%= yield %>
+  </div>
+  
+  </body>
+</html>

@@ -1,0 +1,127 @@
+<h1>Nueva venta</h1>
+
+<% if flash[:notice] %>
+  <div class="alert alert-success">
+    <%= flash[:notice] %>
+  </div>
+<% end %>
+<% if flash[:alert] %>
+   <div class="alert alert-danger">
+    <%= flash[:alert] %>
+  </div>
+<% end %>
+
+<%= link_to 'Volver', sales_path, class: 'btn btn-secondary' %>
+
+<%= form_with(model: @sale, local: true) do |form| %>
+  <div class="form-group">
+    <%= form.label :customer_name, "Cliente" %>
+    <%= form.text_field :customer_name, class: 'form-control', required: true %>
+  </div>
+
+  <%= form.hidden_field :state, value: true %>
+
+  <!-- Productos -->
+  <div id="product-container">
+    <div class="form-group">
+      <%= form.label :product_id, "Producto" %>
+      <%= form.collection_select :product_id, Product.all, :id, :name, { prompt: 'Seleccionar producto' }, class: 'form-control', id: 'product-select', required: true %>
+    </div>
+
+    <div class="form-group">
+      <%= form.label :quantity, "Cantidad" %>
+      <%= form.number_field :quantity, value: 1, min: 1, class: 'form-control', id: 'quantity', required: true %>
+    </div>
+
+    <div class="form-group">
+      <%= form.label :price, "Precio" %>
+      <%= form.text_field :price, class: 'form-control', id: 'price', readonly: true %>
+    </div>
+
+    <button type="button" id="add-product-btn" class="btn btn-success">Agregar Producto</button>
+  </div>
+
+  <!-- Campo oculto para almacenar los productos seleccionados -->
+  <%= form.hidden_field :products, id: "products-field", value: "[]" %>
+
+  <div class="form-group">
+    <%= form.label :total, "Total" %>
+    <%= form.number_field :total, class: 'form-control', id: 'total', value: 0, readonly: true %>
+  </div>
+
+  <%= form.submit 'Crear Venta', class: 'btn btn-primary' %>
+<% end %>
+
+<script>
+  function initEventListeners() {
+   document.getElementById("product-select").addEventListener("change", function() {
+      const productId = this.value;
+      if (productId) {
+        fetch(`/products/${productId}/price`)
+          .then(response => response.json())
+          .then(data => {
+            document.getElementById("price").value = data.price; // Actualizar precio con el valor correcto
+          });
+      }
+    });
+      let selectedProducts = [];
+      let total = 0;
+      document.getElementById("add-product-btn").addEventListener("click", function() {
+      const productId = document.getElementById("product-select").value;
+      const quantity = parseInt(document.getElementById("quantity").value);
+      const price = parseFloat(document.getElementById("price").value);
+
+      if (productId && quantity && price) {
+        // Crear un objeto del producto con los datos
+        const product = {
+          product_id: productId,
+          quantity: quantity,
+          price: price
+        };
+
+        // Agregar el producto al arreglo de productos
+        selectedProducts.push(product);
+
+        // Actualizar el valor del campo oculto `products` con el JSON actualizado
+        document.getElementById("products-field").value = JSON.stringify(selectedProducts);
+
+        // Actualizar el total de la venta
+        total += price * quantity;
+        document.getElementById("total").value = total.toFixed(2);
+
+        // Mostrar los productos agregados en la interfaz
+        const productContainer = document.getElementById("product-container");
+        const productRow = document.createElement("div");
+        productRow.classList.add("product-row");
+        productRow.innerHTML = `
+          <div class="product-item" style="border-bottom: 1px solid #ccc; padding: 10px 0;">
+            <div><strong>Producto ID:</strong> ${productId}</div>
+            <div><strong>Cantidad:</strong> ${quantity}</div>
+            <div><strong>Precio:</strong> ${price}</div>
+            <button type="button" class="btn btn-danger btn-sm remove-product-btn">Eliminar</button>
+          </div>
+        `;
+        productContainer.appendChild(productRow);
+
+        // Agregar funcionalidad para eliminar productos
+        productRow.querySelector('.remove-product-btn').addEventListener('click', function() {
+          // Eliminar producto del array
+          selectedProducts = selectedProducts.filter(p => p.product_id !== product.product_id);
+
+          // Actualizar el campo oculto
+          document.getElementById("products-field").value = JSON.stringify(selectedProducts);
+
+          // Actualizar el total
+          total -= price * quantity;
+          document.getElementById("total").value = total.toFixed(2);
+
+          // Eliminar la fila del producto
+          productRow.remove();
+        });
+      } else {
+        alert("Por favor, complete todos los campos.");
+      }
+    });
+    }
+  initEventListeners();
+</script>

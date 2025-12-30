@@ -1,0 +1,69 @@
+<h1>Productos</h1>
+
+<% if flash[:notice] %>
+  <div class="alert alert-success">
+    <%= flash[:notice] %>
+  </div>
+<% end %>
+<% if flash[:alert] %>
+   <div class="alert alert-danger">
+    <%= flash[:alert] %>
+  </div>
+<% end %>
+
+<%= link_to 'Cargar producto', new_product_path, class: 'btn btn-primary' %>
+
+<%= form_with(url: products_path, method: :get, class: 'form-inline my-3') do %>
+  <div class="form-group mr-2">
+    <%= label_tag :name, 'Nombre: ', class: 'form-label' %>
+    <%= text_field_tag :name, params[:name], class: 'form-control' %>
+  </div>
+  <div class="form-group mr-2">
+    <%= label_tag :description, 'Descripción: ', class: 'form-label' %>
+    <%= text_field_tag :description, params[:description], class: 'form-control' %>
+  </div>
+  <div class="form-group mr-2">
+    <%= label_tag :category_id, 'Categoría: ', class: 'form-label' %>
+    <%= select_tag :category_id, options_from_collection_for_select(Category.all, :id, :name, params[:category_id]), prompt: "Selecciona una categoría", class: 'form-control' %>
+  </div>
+  <%= submit_tag 'Buscar', class: 'btn btn-secondary' %>
+<% end %>
+
+<table class="table table-striped mt-3">
+  <thead>
+    <tr>
+      <th>Nombre</th>
+      <th>Descripción</th>
+      <th>Stock</th>
+      <th>Precio</th>
+      <th>Categoría</th>
+      <th>Creación</th>
+      <th>Modificación</th>
+      <th>Imagen</th>
+      <th>Editar</th>
+      <th>Eliminar</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @products.each do |product| %>
+      <tr>
+        <td><%= product.name %></td>
+        <td><%= product.description %></td>
+        <td><%= product.stock %></td>
+        <td><%= number_to_currency(product.price, delimiter: ".", separator: ",") %></td>
+        <td><%= product.category.name %></td>
+        <td><%= product.created_at.strftime('%d/%m/%Y %H:%M') %></td>
+        <td><%= product.updated_at.strftime('%d/%m/%Y %H:%M') %></td>
+        <td>
+          <% if product.image.attached? %>
+            <%= image_tag product.image, alt: "Imagen del producto", class: "img-thumbnail" %>
+          <% else %>
+            <span>No disponible</span>
+          <% end %>
+        </td>
+        <td><%= link_to 'Editar', edit_product_path(product), class: 'btn btn-warning btn-sm' %></td>
+        <td><%= button_to 'Eliminar', product_path(product), method: :delete, class: 'btn btn-danger', onclick: "return confirm('¿Desea eliminar el producto?')" %></td>   
+      </tr>
+    <% end %>
+  </tbody>
+</table>

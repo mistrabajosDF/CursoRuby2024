@@ -1,0 +1,68 @@
+<h1>Cargar usuario</h1>
+
+<%= link_to 'Volver', users_path, class: 'btn btn-secondary' %>
+
+<% if flash[:notice] %>
+  <div class="alert alert-success">
+    <%= flash[:notice] %>
+  </div>
+<% end %>
+<% if flash[:alert] %>
+   <div class="alert alert-danger">
+    <%= flash[:alert] %>
+  </div>
+<% end %>
+
+<%= form_with model: @user, local: true do |form| %>
+  <% if @user.errors.any? %>
+    <div class="alert alert-danger">
+      <h2>La creación del usuario falló debido a los siguientes errores:</h2>
+      <ul>
+        <% @user.errors.full_messages.each do |msg| %>
+          <li><%= msg %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="form-group">
+    <%= form.label :name, "Nombre y apellido: " %>
+    <%= form.text_field :name, class: 'form-control', required: true %>
+  </div>
+
+  <div class="form-group">
+    <%= form.label :mail, "Correo electrónico: " %>
+    <%= form.email_field :mail, class: 'form-control', required: true %>
+  </div>
+
+ <div class="form-group">
+    <%= form.label :username, "Nombre de usuario: " %>
+    <%= form.text_field :username, class: 'form-control', required: true %>
+  </div>
+
+  <div class="form-group">
+    <%= form.label :phone, "Teléfono: " %>
+    <%= form.number_field :phone, class: 'form-control', required: true %>
+  </div>
+
+  <div class="form-group">
+    <%= form.label :password, "Contraseña" %>
+    <%= form.text_field :password, class: 'form-control', required: true %>
+  </div>
+
+  <%= form.hidden_field :state, value: true %>
+
+  <div>
+    <%= form.label :entrydate, "Fecha de ingreso: "%>
+    <%= form.date_field :entrydate, class: 'form-control', required: true %>
+  </div>
+
+  <div>
+    <%= form.label :role_id, "Rol" %>
+    <%= form.select :role_id, @roles.map { |role| [role.name, role.id] }, prompt: "Selecciona un rol", required: true %>
+  </div>
+
+  <div>
+    <%= form.submit "Crear Usuario", class: 'btn btn-primary' %>
+  </div>
+<% end %>

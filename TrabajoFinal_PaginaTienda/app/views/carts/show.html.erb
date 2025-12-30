@@ -1,0 +1,63 @@
+<div class="max-w-3xl mx-auto bg-white p-6 rounded-2xl shadow-md space-y-6">
+  <h1 class="text-2xl font-bold mb-6">Mi Carrito</h1>
+
+  <% if flash[:notice] %>
+    <div class="alert alert-success">
+      <%= flash[:notice] %>
+    </div>
+  <% end %>
+  <% if flash[:alert] %>
+    <div class="alert alert-danger">
+      <%= flash[:alert] %>
+    </div>
+  <% end %>
+
+  <% if @cart.cart_items.any? %>
+    <div class="overflow-x-auto">
+      <table class="min-w-full bg-white border border-gray-200 shadow rounded-lg">
+        <thead class="bg-gray-100">
+          <tr>
+            <th class="text-left px-4 py-2 border-b">Producto</th>
+            <th class="text-left px-4 py-2 border-b">Cantidad</th>
+            <th class="text-left px-4 py-2 border-b">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @cart.cart_items.each do |item| %>
+            <tr class="border-b hover:bg-gray-50">
+              <td class="px-4 py-2"><%= item.product.name %></td>
+              <td class="px-4 py-2">
+                <%= form_with(model: item, url: cart_cart_item_path(item), method: :patch, local: true) do |f| %>
+                  <div class="flex items-center space-x-2">
+                    <%= f.number_field :quantity, value: item.quantity, min: 1,
+                      class: "w-16 px-2 py-1 border border-gray-300 rounded" %>
+                    <%= f.submit "Modificar",
+                      class: "bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm shadow" %>
+                  </div>
+                <% end %>
+              </td>
+              <td class="px-4 py-2">
+                <%= button_to "Eliminar", cart_cart_item_path(item), method: :delete,
+                      onclick: "return confirm('¿Está seguro?')",
+                      class: "bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-sm shadow" %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="mt-6 flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
+      <%= button_to "Vaciar Carrito", clear_cart_path, method: :delete,
+            onclick: "return confirm('¿Está seguro?')",
+            class: "bg-red-500 hover:bg-red-600 text-white font-semibold px-4 py-2 rounded shadow" %>
+
+      <%= link_to "Finalizar Compra", new_checkout_path,
+            class: "bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded shadow text-center" %>
+    </div>
+  <% else %>
+    <p class="text-gray-600">Tu carrito está vacío.</p>
+    
+  <% end %>
+  <%= link_to "Agregar productos", root_path, data: { turbo: false }, class: "inline-block bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded" %>
+</div>

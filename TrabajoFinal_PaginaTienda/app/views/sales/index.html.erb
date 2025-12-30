@@ -1,0 +1,81 @@
+<h1>Ventas</h1>
+
+<% if flash[:notice] %>
+  <div class="alert alert-success">
+    <%= flash[:notice] %>
+  </div>
+<% end %>
+
+<% if flash[:alert] %>
+  <div class="alert alert-danger">
+    <%= flash[:alert] %>
+  </div>
+<% end %>
+
+<%= link_to 'Nueva Venta', new_sale_path, class: 'btn btn-primary' %>
+
+<%= form_with(url: sales_path, method: :get, class: 'form-inline my-3') do %>
+  <div class="form-group mr-2">
+    <%= label_tag :sale_type, 'Tipo de venta:', class: 'form-label' %>
+    <%= select_tag :sale_type,
+        options_for_select([
+          ['Todas', 'all'],
+          ['Compras de clientes', 'customer'],
+          ['Ventas de empleados', 'employee']
+        ], selected: params[:sale_type]),
+        class: 'form-control' %>
+  </div>
+  <%= submit_tag 'Filtrar', class: 'btn btn-secondary' %>
+<% end %>
+
+<table class="table table-striped mt-3">
+  <thead>
+    <tr>
+      <th>Cliente</th>
+      <th>Dirección del cliente</th>
+      <th>Vendedor</th>
+      <th>Productos</th>
+      <th>Total</th>
+      <th>Creación</th>
+      <th>Modificación</th>
+      <th>Cancelar</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @sales.each do |sale| %>
+      <tr>
+        <td><%= sale.customer_name %></td>
+
+        <td>
+          <% if sale.customer_id.present? && Customer.exists?(sale.customer_id) %>
+            <%= Customer.find(sale.customer_id).address.presence || "-" %>
+          <% else %>
+            -
+          <% end %>
+        </td>
+
+        <td><%= sale.user&.name || " " %></td>
+        <td>
+          <% if sale.products.present? && sale.products.any? %>
+            <% sale.products.each do |product| %>
+              <div>
+                <strong>Nombre:</strong> <%= Product.find(product["product_id"]).name %><br>
+                <strong>Precio:</strong> <%= number_to_currency(product["price"], delimiter: ".", separator: ",") %><br>
+                <strong>Cantidad:</strong> <%= product["quantity"] %>
+              </div>
+              <hr> 
+            <% end %>
+          <% else %>
+            <div>*Venta de prueba*</div>
+          <% end %>
+        </td>
+        <td><%= number_to_currency(sale.total) %></td>
+        <td><%= sale.created_at.strftime('%d/%m/%Y %H:%M') %></td>
+        <td><%= sale.updated_at.strftime('%d/%m/%Y %H:%M') %></td>
+        <td>
+          <%= button_to 'Cancelar', sale_path(sale), method: :delete, class: 'btn btn-danger', onclick: "return confirm('¿Desea cancelar la venta?')" %>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

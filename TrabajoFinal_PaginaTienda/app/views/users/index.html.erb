@@ -1,0 +1,56 @@
+<h1>Personal</h1>
+<% if flash[:notice] %>
+  <div class="alert alert-success">
+    <%= flash[:notice] %>
+  </div>
+<% end %>
+<% if flash[:alert] %>
+   <div class="alert alert-danger">
+    <%= flash[:alert] %>
+  </div>
+<% end %>
+<% if current_user.role.name == "Administrador" || current_user.role.name == "Gerente" %>
+
+  <%= link_to 'Nuevo Usuario', new_user_path, class: 'btn btn-primary mb-3' %>
+
+  <table class="table table-striped mt-3">
+    <thead>
+      <tr>
+        <th>Nombre</th>
+        <th>Nombre de usuario</th>
+        <th>Correo electrónico</th>
+        <th>Teléfono</th>
+        <th>Fecha de Ingreso</th>
+        <th>Rol</th>
+        <th>Editar</th>
+        <% if current_user.role.name == "Administrador" %>
+          <th>Desactivar</th>
+        <% end %>
+      </tr>
+    </thead>
+    <tbody>
+      <% @users.each do |user| %>
+        <tr>
+          <td><%= user.name %></td>
+          <td><%= user.username %></td>
+          <td><%= user.mail %></td>
+          <td><%= user.phone %></td>
+          <td><%= user.entrydate.strftime('%d/%m/%Y') %></td>
+          <td><%= user.role.name %></td>
+          <td><%= link_to 'Editar', edit_user_path(user), class: 'btn btn-warning btn-sm' %></td>
+          <% if current_user.role.name == "Administrador" %>
+            <td><%= button_to 'Desactivar', user_path(user), method: :delete, class: 'btn btn-danger btn-sm', onclick: "return confirm('¿Desea desactivar a este usuario?')" %></td>
+          <% end %>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+  <% else %>
+  <!-- Mensaje para empleados que intentan acceder a esta vista -->
+  <div class="alert alert-danger">
+    <p>¡Ups! No deberías ver esto.</p>
+  </div>
+
+  <!-- Botón para redirigir a la página de inicio -->
+  <%= link_to 'Ir al Inicio', root_path, class: 'btn btn-primary' %>
+<% end %>
